@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import httpx
+from urllib.parse import urljoin
 
 from app.config import get_settings
 from app.ai.extractor import EventExtractor
@@ -20,7 +21,7 @@ class HubWebScraper:
                 continue
             anchor = item.select_one("a[href]") or item.find_parent("a", href=True)
             link = anchor.get("href", source_url) if anchor else source_url
-            results.append({"text": text, "link": link if link.startswith("http") else source_url, "source": source_url})
+            results.append({"text": text, "link": urljoin(source_url, link), "source": source_url})
         return results
 
     async def collect(self, urls: list[str] | None = None, limit: int = 20) -> list[dict[str, str]]:

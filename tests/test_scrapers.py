@@ -16,13 +16,14 @@ def test_web_parser_returns_matching_items_and_links() -> None:
     <main>
       <article><a href="https://example.com/hack">Большой хакатон Astana Hub</a></article>
       <h2>Общая новость без события</h2>
-      <article>Startup grant для команд Казахстана</article>
+    <article><a href="/grant">Startup grant для команд Казахстана</a></article>
     </main>
     """
     items = HubWebScraper().parse(html, "https://astanahub.com/news")
 
     assert len(items) == 2
     assert items[0]["link"] == "https://example.com/hack"
+    assert items[1]["link"] == "https://astanahub.com/grant"
     assert all("text" in item for item in items)
 
 
