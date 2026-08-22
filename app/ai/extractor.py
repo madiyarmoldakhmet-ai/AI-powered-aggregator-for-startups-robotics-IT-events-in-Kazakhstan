@@ -22,7 +22,9 @@ class EventExtractor:
             payload: dict[str, Any] = json.loads(text)
             payload["link"] = payload.get("link") or source_link
             return EventBase.model_validate(payload)
-        except (ImportError, json.JSONDecodeError, ValueError, RuntimeError) as exc:
+        except ImportError:
+            return self._fallback(raw_text, source_link)
+        except (json.JSONDecodeError, ValueError, RuntimeError) as exc:
             raise RuntimeError("Gemini extraction failed") from exc
 
     @staticmethod
