@@ -18,7 +18,8 @@ class EventExtractor:
             genai.configure(api_key=settings.gemini_api_key)
             model = genai.GenerativeModel(settings.gemini_model)
             response = await model.generate_content_async(EXTRACTION_PROMPT.format(text=raw_text))
-            payload: dict[str, Any] = json.loads(response.text)
+            text = response.text.strip().removeprefix("```json").removesuffix("```").strip()
+            payload: dict[str, Any] = json.loads(text)
             payload["link"] = payload.get("link") or source_link
             return EventBase.model_validate(payload)
         except (ImportError, json.JSONDecodeError, ValueError, RuntimeError) as exc:

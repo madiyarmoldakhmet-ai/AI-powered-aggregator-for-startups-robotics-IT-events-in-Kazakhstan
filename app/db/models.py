@@ -20,3 +20,10 @@ class Event(Base):
     link: Mapped[str] = mapped_column(String(500))
     source: Mapped[str] = mapped_column(String(100), default="manual")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class Subscriber(Base):
+    __tablename__ = "subscribers"
+
+    chat_id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

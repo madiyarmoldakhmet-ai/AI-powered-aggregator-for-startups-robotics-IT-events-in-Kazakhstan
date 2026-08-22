@@ -31,10 +31,17 @@ def upgrade() -> None:
     op.create_index("ix_events_title", "events", ["title"])
     op.create_index("ix_events_city", "events", ["city"])
     op.create_index("ix_events_category", "events", ["category"])
+    op.create_table(
+        "subscribers",
+        sa.Column("chat_id", sa.BigInteger(), nullable=False),
+        sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.PrimaryKeyConstraint("chat_id"),
+    )
 
 
 def downgrade() -> None:
     op.drop_index("ix_events_category", table_name="events")
     op.drop_index("ix_events_city", table_name="events")
     op.drop_index("ix_events_title", table_name="events")
+    op.drop_table("subscribers")
     op.drop_table("events")
