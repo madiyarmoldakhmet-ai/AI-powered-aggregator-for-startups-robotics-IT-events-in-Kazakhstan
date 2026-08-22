@@ -31,8 +31,7 @@ async def lifespan(_: FastAPI):
     if settings.scraper_interval_hours > 0:
         scheduler.add_job(run_ingest, "interval", hours=settings.scraper_interval_hours, id="event-ingest", replace_existing=True)
         scheduler.start()
-        if settings.telegram_api_id and settings.telegram_api_hash:
-            asyncio.create_task(run_ingest())
+        asyncio.create_task(run_ingest())
     try:
         yield
     finally:

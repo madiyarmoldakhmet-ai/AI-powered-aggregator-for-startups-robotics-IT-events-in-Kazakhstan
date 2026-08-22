@@ -23,7 +23,11 @@ async def search(message: Message) -> None:
 @router.message(Command("events"))
 async def events(message: Message) -> None:
     with SessionLocal() as db:
-        upcoming = db.scalars(select(Event).order_by(Event.date).limit(10)).all()
+        stored_events = db.scalars(select(Event)).all()
+    upcoming = sorted(
+        (event for event in stored_events if event.date != "Не указана"),
+        key=lambda event: event.date,
+    )[:10]
     if not upcoming:
         await message.answer("Пока новых событий нет.")
         return

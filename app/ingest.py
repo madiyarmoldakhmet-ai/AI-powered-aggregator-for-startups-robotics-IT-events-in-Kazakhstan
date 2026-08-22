@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+import logging
 
 from aiogram import Bot
 from sqlalchemy import select
@@ -11,19 +12,31 @@ from app.scrapers.telegram import TelegramChannelScraper
 from app.scrapers.web import HubWebScraper
 
 
+logger = logging.getLogger(__name__)
+
+
 async def ingest_sources(db: Session, telegram: TelegramChannelScraper | None = None, web: HubWebScraper | None = None) -> int:
     settings = get_settings()
     telegram = telegram or TelegramChannelScraper()
     web = web or HubWebScraper()
     raw_items: list[dict[str, str]] = []
     if settings.telegram_api_id and settings.telegram_api_hash:
-        raw_items.extend(await telegram.collect_all())
-    raw_items.extend(await web.collect())
+        try:
+            raw_items.extend(await telegram.collect_all())
+        except Exception:
+            logger.exception("Telegram collection failed")
+    try:
+        raw_items.extend(await web.collect())
+    except Exception:
+        logger.exception("Web collection failed")
     added: list[Event] = []
     for item in raw_items:
         try:
             event_data = await EventExtractor().extract(item["text"], item["link"])
         except RuntimeError:
+            continue
+        if event_data.date == "Не указана":
+            logger.info("Skipping undated event from %s", item.get("source", "scraper"))
             continue
         if db.scalar(select(Event.id).where(Event.link == event_data.link)) is not None:
             continue
