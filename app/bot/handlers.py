@@ -26,7 +26,7 @@ async def subscribe(message: Message) -> None:
             if db.get(Subscriber, message.chat.id) is None:
                 db.add(Subscriber(chat_id=message.chat.id))
                 db.commit()
-    await message.answer("Подписка подготовлена. Персональные фильтры будут сохранены в следующей версии.")
+    await message.answer("Вы подписаны на новые события EventScout KZ.")
 
 
 @router.message(Command("settings"))
