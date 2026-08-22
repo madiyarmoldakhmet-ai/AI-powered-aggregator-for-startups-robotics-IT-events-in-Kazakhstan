@@ -28,12 +28,19 @@ class TelegramChannelScraper:
             raise RuntimeError("TELEGRAM_API_ID and TELEGRAM_API_HASH are required")
         channels = (channel.lstrip("@"),) if channel else self.channels
         results: list[dict[str, str]] = []
-        async with TelegramClient("eventscout", settings.telegram_api_id, settings.telegram_api_hash) as client:
+        client = TelegramClient("eventscout", settings.telegram_api_id, settings.telegram_api_hash)
+        await client.connect()
+        if not await client.is_user_authorized():
+            await client.disconnect()
+            raise RuntimeError("Telethon session is not authorized; run the setup command interactively once")
+        try:
             for channel_name in channels:
                 async for message in client.iter_messages(channel_name, limit=limit):
                     text = (message.message or "").strip()
                     if text and self.matches(text):
                         results.append({"text": text, "link": f"https://t.me/{channel_name}/{message.id}", "source": f"telegram:{channel_name}"})
+        finally:
+            await client.disconnect()
         return results
 
     async def collect_all(self, limit: int = 20) -> list[dict[str, str]]:
