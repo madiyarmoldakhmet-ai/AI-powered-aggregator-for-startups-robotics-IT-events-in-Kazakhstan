@@ -1,4 +1,4 @@
-import pytest
+import asyncio
 
 from app.ai.extractor import EventExtractor
 from app.scrapers.telegram import TelegramChannelScraper
@@ -26,9 +26,8 @@ def test_web_parser_returns_matching_items_and_links() -> None:
     assert all("text" in item for item in items)
 
 
-@pytest.mark.asyncio
-async def test_extractor_fallback_produces_api_compatible_event() -> None:
-    event = await EventExtractor().extract("Almaty Startup Weekend", "https://example.com/event")
+def test_extractor_fallback_produces_api_compatible_event() -> None:
+    event = asyncio.run(EventExtractor().extract("Almaty Startup Weekend", "https://example.com/event"))
 
     assert event.title == "Almaty Startup Weekend"
     assert event.link == "https://example.com/event"
