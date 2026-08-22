@@ -1,10 +1,11 @@
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
+from sqlalchemy import select
 
 from app.config import get_settings
 from app.db.database import SessionLocal
-from app.db.models import Subscriber
+from app.db.models import Event, Subscriber
 
 router = Router()
 
@@ -17,6 +18,17 @@ async def start(message: Message) -> None:
 @router.message(Command("search"))
 async def search(message: Message) -> None:
     await message.answer("Поиск событий доступен через API: GET /events?city=Алматы&category=startup")
+
+
+@router.message(Command("events"))
+async def events(message: Message) -> None:
+    with SessionLocal() as db:
+        upcoming = db.scalars(select(Event).order_by(Event.date).limit(10)).all()
+    if not upcoming:
+        await message.answer("Пока новых событий нет.")
+        return
+    text = "\n\n".join(f"{event.title}\n{event.date}, {event.city}\n{event.link}" for event in upcoming)
+    await message.answer(text)
 
 
 @router.message(Command("subscribe"))
