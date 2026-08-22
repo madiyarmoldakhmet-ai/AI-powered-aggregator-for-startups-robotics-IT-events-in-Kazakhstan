@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     telegram_channels: str = "astanahub,techgarden,jetisudigital"
     scraper_urls: str = "https://astanahub.com/"
     scraper_interval_hours: int = 3
+    seed_mock_events: bool = False
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-1.5-flash"
     admin_api_key: str | None = None

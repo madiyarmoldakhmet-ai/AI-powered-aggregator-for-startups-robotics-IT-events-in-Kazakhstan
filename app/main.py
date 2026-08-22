@@ -19,7 +19,8 @@ from app.ingest import ingest_sources
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
     with next(get_db()) as db:
-        seed_events(db)
+        if get_settings().seed_mock_events:
+            seed_events(db)
     scheduler = AsyncIOScheduler()
     settings = get_settings()
 

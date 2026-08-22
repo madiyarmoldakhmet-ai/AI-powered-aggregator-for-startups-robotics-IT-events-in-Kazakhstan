@@ -16,7 +16,7 @@ def test_mock_events_are_available() -> None:
     with TestClient(app) as client:
         response = client.get("/events")
         assert response.status_code == 200
-        assert len(response.json()) >= 3
+        assert all(item["source"] != "mock" for item in response.json())
 
 
 def test_event_filter() -> None:
